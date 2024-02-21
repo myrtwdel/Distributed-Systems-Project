@@ -1,6 +1,7 @@
 import pika, time, sys
 from datetime import datetime
 
+
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 
