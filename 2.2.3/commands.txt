@@ -1,0 +1,20 @@
+python subscriber.py ORCH1 ORCH1 ORCHESTRATORS ALL
+
+
+python subscriber.py WORKER1 WORKER1 WORKERS ALL
+
+
+python subscriber.py WORKER2 WORKER2 WORKERS ALL
+
+
+
+python publisher.py ORCH1 WORKERS TASK-ID: ORCH1.01 TASK LOAD: 2 SECONDS
+
+
+python publisher.py WORKER1 ORCH1 TOTAL LOAD: 12 SECONDS
+
+
+python publisher.py WORKER2 ORCH1 TOTAL LOAD: 13 SECONDS
+
+
+python publisher.py WORKER1 ORCH1 COMPLETED TASK ID: ORCH1.01
