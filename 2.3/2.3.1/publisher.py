@@ -19,9 +19,9 @@ processes = {
     "09": Process("09", ["11", "21", "28"]),
     "11": Process("11", ["14", "18", "20", "28"]),
     "14": Process("14", ["18", "28"]),
-    "18": Process("18", ["04", "20", "P28"]),
+    "18": Process("18", ["04", "20", "28"]),
     "20": Process("20", ["04", "28"]),
-    "21": Process("21", ["01", "09", "P28"]),
+    "21": Process("21", ["01", "09", "28"]),
     "28": Process("28", ["01", "04"])
 }
 
@@ -34,7 +34,6 @@ channel.exchange_declare(exchange='process_exchange', exchange_type='direct', du
 channel.queue_bind(exchange='process_exchange', queue='dead_letter_queue', routing_key='process_queue')
 
 sender_id = sys.argv[1]
-#sender_id = f"P{sender_id}"
 recipient_ids = sys.argv[2].split(',')
 message_body = str(sys.argv[3:])
 message_body = message_body.replace("[", "").replace("]", "").replace("'", "").replace(",", "")

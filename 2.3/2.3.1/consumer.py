@@ -1,5 +1,6 @@
 import pika, sys, signal, random, time
 from progress.bar import ChargingBar
+from process import Process
 
 def signal_handler(sig, frame):
     print(" \n Interrupted")
@@ -11,8 +12,18 @@ signal.signal(signal.SIGINT, signal_handler)
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 
-# Πίνακας αναγνωριστικών διεργασιών
-pid = ['01', '04', '09', '11', '14', '18', '20', '21', '28']
+#Αρχικοποίηση διεργασιών
+processes = {
+    "01": Process("01", ["04", "09", "18"]),
+    "04": Process("04", ["09", "14", "20"]),
+    "09": Process("09", ["11", "21", "28"]),
+    "11": Process("11", ["14", "18", "20", "28"]),
+    "14": Process("14", ["18", "28"]),
+    "18": Process("18", ["04", "20", "28"]),
+    "20": Process("20", ["04", "28"]),
+    "21": Process("21", ["01", "09", "28"]),
+    "28": Process("28", ["01", "04"])
+}
 
 # Δήλωση της ουράς διεργασιών
 channel.queue_declare(queue='process_queue', durable=True)

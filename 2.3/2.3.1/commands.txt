@@ -1,0 +1,8 @@
+python publisher.py 01 04,18,09 All my neighbors can see this.
+python publisher.py 01 04,18 Only neighbors 04 and 18 can see this.
+python publisher.py 01 11,14 This has to be ignored.
+
+python publisher.py 04 09,20,14 All my neighbors can see this.
+
+python publisher.py 11 18,28 Only neighbors 18 and 28 can see this.
+
