@@ -1,0 +1,13 @@
+python publisher.py 01 04,18,09 
+python publisher.py 01 04,18 
+python publisher.py 01 11,14 
+
+python publisher.py 04 09,20,14 
+
+python publisher.py 11 18,28 
+
+python consumer.py 04
+
+python consumer.py 18
+
+python consumer.py 20

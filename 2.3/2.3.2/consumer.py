@@ -50,14 +50,16 @@ def callback(ch, method, properties, body):
     message = str(message)
     message = message.replace("{", "").replace("}", "").replace("'", "")
     sender_id, rest = message.split(' + ')
-    recipient_ids, message_body = rest.split(' - ')
+    recipient_ids, message_body = rest.split(' * ')
     
     if recipient_id in recipient_ids:
         print("====================================================================================================================================")
         print(f" [Process {recipient_id} Just received a new message:]")
         print("------------------------------------------------------------------------------------------------------------------------------------")
         print(f" \t SENDER PROCESS ID: {sender_id}")
-        print(f" \t {message_body}")
+        message_timestamp, message_body = message_body.split(' = ')
+        print(f" \t SAMPLING TIMESTAMP: {message_timestamp}")
+        print(f" \t SAMPLES: {message_body}")
         global counter
         counter += 1
         print("------------------------------------------------------------------------------------------------------------------------------------")

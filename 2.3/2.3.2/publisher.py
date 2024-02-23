@@ -26,7 +26,7 @@ processes = {
     "28": Process("28", ["01", "04"])
 }
 
-hbtg = HeartbitAndTemperatureGenerator(sampling_interval=30, repeat_sampling=True)
+hbtg = HeartbitAndTemperatureGenerator(30)
 
 # Δήλωση της ουράς διεργασιών
 channel.queue_declare(queue='process_queue', durable=True)
@@ -40,7 +40,7 @@ sender_id = sys.argv[1]
 recipient_ids = sys.argv[2].split(',')
 message_body = hbtg.send_samples_to_processes()
 #message_body = message_body.replace("[", "").replace("]", "").replace("'", "").replace(",", "")
-message = f"{sender_id} + {recipient_ids} - {message_body}"
+message = f"{sender_id} + {recipient_ids} * {message_body}"
 sender_pr = Process.get_process_by_pid(sender_id, processes)
 
 # Εναλλακτήριο διεργασιών
@@ -55,7 +55,9 @@ if check_elements_exist(recipient_ids, sender_pr.neighbors):
     print("------------------------------------------------------------------------------------------------------------------------------------")
     print(f" \t PROCESS ID: {sender_id}")
     print(f" \t RECIPIENT PROCESS ID(s): {recipient_ids}")
-    print(f" \t {message_body}")
+    message_timestamp, message_body = message_body.split(' = ')
+    print(f" \t SAMPLING TIMESTAMP: {message_timestamp}")
+    print(f" \t SAMPLES: {message_body}")
     print("------------------------------------------------------------------------------------------------------------------------------------")
     channel.basic_publish(exchange='process_exchange', routing_key='process_queue', body=message, properties=pika.BasicProperties(delivery_mode=pika.DeliveryMode.Persistent))
     print(f" New Message just published.")

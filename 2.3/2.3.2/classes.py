@@ -3,14 +3,9 @@ from datetime import datetime
 
 class HeartbitAndTemperatureGenerator:
 
-    def __init__(self, sampling_interval, repeat_sampling):
+    def __init__(self, sampling_interval):
         self.sampling_interval = sampling_interval
-        self.repeat_sampling = repeat_sampling
-        self.heartbit = 0
 
-    def generate_heartbit(self):
-        self.heartbit +=1
-        return self.heartbit
     
     def generate_temperature_samples(self):
         temperature_samples = [round(random.uniform(0, 40), 1) for _ in range(32)]
@@ -18,21 +13,18 @@ class HeartbitAndTemperatureGenerator:
     
    
     def send_samples_to_processes(self):
-        while True:
-            # Generate heartbit
-            self.heartbit = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
-            # Generate temperature samples
-            temperature_samples = self.generate_temperature_samples()
+        # Generate heartbit
+        self.heartbit = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        
+        # Generate temperature samples
+        temperature_samples = self.generate_temperature_samples()
 
-            # Sleep for sampling interval
-            time.sleep(self.sampling_interval)
+        # Sleep for sampling interval
+        time.sleep(self.sampling_interval)
 
-            # If repeat_sampling is False, break the loop
-            if not self.repeat_sampling:
-                break
-            
-            return f"Samples for Heartbit {self.heartbit}: {temperature_samples}"
+        # Return the message
+        return f"{self.heartbit} = {temperature_samples}"
         
 
 class Process:
