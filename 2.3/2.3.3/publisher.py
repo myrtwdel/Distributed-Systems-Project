@@ -20,14 +20,13 @@ channel = connection.channel()
 hbtg = HeartbitAndTemperatureGenerator(30)
 message = hbtg.send_samples_to_processes()
 
-# Δήλωση της ουράς διεργασιών
-channel.queue_declare(queue='process_queue', durable=True)
+#Δήλωση της ουράς διεργασιών
+channel.queue_declare(queue='task_queue', durable=True)
 
 # Δήλωση της dead-letter ουράς
 channel.queue_declare(queue='dead_letter_queue', durable=True)
-channel.exchange_declare(exchange='process_exchange', exchange_type='direct', durable=True)
-channel.queue_bind(exchange='process_exchange', queue='dead_letter_queue', routing_key='process_queue')
-
+channel.exchange_declare(exchange='queue_exchange', exchange_type='direct', durable=True)
+channel.queue_bind(exchange='queue_exchange', queue='dead_letter_queue', routing_key='task_queue')
 
 print("====================================================================================================================================")
 print(f" [Publisher] publisher.py")
@@ -44,7 +43,7 @@ for i in range(9):
     receiver_pr = list(processes.values())[i]
     receiver_id = receiver_pr.pid
     message = f" {message} + {receiver_id}"
-    channel.basic_publish(exchange='process_exchange', routing_key='process_queue', body=message, properties=pika.BasicProperties(delivery_mode=pika.DeliveryMode.Persistent))
+    channel.basic_publish(exchange='queue_exchange', routing_key='task_queue', body=message, properties=pika.BasicProperties(delivery_mode=pika.DeliveryMode.Persistent))
 
 
 print(" New Messages just published.")

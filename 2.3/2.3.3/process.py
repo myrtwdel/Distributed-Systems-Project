@@ -24,13 +24,13 @@ processes = {
     "28": Process("28", ["01", "04"])
 }
 
-# Δήλωση της ουράς διεργασιών
-channel.queue_declare(queue='process_queue', durable=True)
+#Αν η διεργασία βρίσκεται στην ουρά διεργασιών για παραπάνω από 60 δευτερόλεπτα, μεταφέρεται στην ουρά dead-letter
+channel.queue_declare(queue='task_queue', durable=True)
 
-# Δήλωση της dead-letter ουράς
+#Εδώ πάνε οι διεργασίες που διακόπτονται λόγω αδυναμίας εξυπηρέτησης
 channel.queue_declare(queue='dead_letter_queue', durable=True)
-channel.exchange_declare(exchange='process_exchange', exchange_type='direct', durable=True)
-channel.queue_bind(exchange='process_exchange', queue='dead_letter_queue', routing_key='process_queue')
+channel.exchange_declare(exchange='queue_exchange', exchange_type='direct', durable=True)
+channel.queue_bind(exchange='queue_exchange', queue='dead_letter_queue', routing_key='task_queue')
 
 process_id = sys.argv[1]
 process_pr = Process.get_process_by_pid(process_id, processes)
@@ -48,7 +48,9 @@ def callback(ch, method, properties, body):
     message_timestamp, message_body = message.split(' = ')
     message_body, receiver_id = message.split(' + ')
     samples = [message_body[i] for i in sensors]
-    if receiver_id == process_id:
+
+    if process_id == receiver_id:
+
         print("====================================================================================================================================")
         print(f" [Process {process_id} Just received a new message:]")
         print("------------------------------------------------------------------------------------------------------------------------------------")
@@ -62,10 +64,12 @@ def callback(ch, method, properties, body):
         print("------------------------------------------------------------------------------------------------------------------------------------")
         time_other = int(random.randint(1, 9))
         print(f" ...simulating the execution of some other local work, for {time_other} seconds...")
+
         with ChargingBar('') as bar:
             for i in range(100):
                 time.sleep(int(time_other)/100)
                 bar.next()
+                
         ch.basic_ack(delivery_tag=method.delivery_tag)  
 
     else:
@@ -74,6 +78,6 @@ def callback(ch, method, properties, body):
 
 channel.basic_qos(prefetch_count=1)
 
-channel.basic_consume(queue='process_queue', on_message_callback=callback)
+channel.basic_consume(queue='task_queue', on_message_callback=callback)
 
 channel.start_consuming()
