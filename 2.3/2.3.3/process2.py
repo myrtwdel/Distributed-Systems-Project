@@ -33,7 +33,9 @@ channel.queue_declare(queue='dead_letter_queue', durable=True)
 channel.exchange_declare(exchange='process_exchange', exchange_type='direct', durable=True)
 channel.queue_bind(exchange='process_exchange', queue='dead_letter_queue', routing_key='process_queue')
 
-recipient_id = sys.argv[1]
+process_id = sys.argv[1]
+process_pr = Process.get_process_by_pid(process_id, processes)
+sensors = process_pr.get_sensor_list()
 
 # Εναλλακτήριο διεργασιών
 channel.exchange_declare(exchange='filtering_stream', exchange_type='topic', durable=True)
@@ -41,7 +43,7 @@ channel.queue_bind(exchange='filtering_stream', queue='process_queue', routing_k
 
 
 print("====================================================================================================================================")
-print(f" [Process {recipient_id}] Awaiting Messages from its neighbors. Press CTRL+C to exit...")
+print(f" [Process {process_id}] Awaiting Messages from its neighbors. Press CTRL+C to exit...")
 
 counter = 0
 
@@ -49,32 +51,30 @@ def callback(ch, method, properties, body):
     message = body.decode()
     message = str(message)
     message = message.replace("{", "").replace("}", "").replace("'", "")
+    message_timestamp, message_body = message.split(' = ')
+    samples = [message_body[i] for i in sensors]
 
     print("====================================================================================================================================")
-    print(f" [Process {recipient_id} Just received a new message:]")
+    print(f" [Process {process_id} Just received a new message:]")
     print("------------------------------------------------------------------------------------------------------------------------------------")
-    print(f" \t SENDER PROCESS ID: SENDER")
-    print(f" {message}")
-    message_timestamp, message_body = message.split(' = ')
-    message_body, process_id = message_body.split(' + ')
-    if process_id == recipient_id:
-        print(f" \t SAMPLING TIMESTAMP: {message_timestamp}")
-        print(f" \t SAMPLES: {message_body}")
-        global counter
-        counter += 1
-        print("------------------------------------------------------------------------------------------------------------------------------------")
-        print(f" Total number of received Messages for Process {recipient_id} is: {counter}")
-        print("------------------------------------------------------------------------------------------------------------------------------------")
-        time_other = int(random.randint(1, 9))
-        print(f" ...simulating the execution of some other local work, for {time_other} seconds...")
-        with ChargingBar('') as bar:
-            for i in range(100):
-                time.sleep(int(time_other)/100)
-                bar.next()
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+    print(f" \t SENT FROM SENSORS: {sensors}")
+    print(f" \t SAMPLING TIMESTAMP: {message_timestamp}")
+    print(f" \t SAMPLES: {samples}")
+    global counter
+    counter += 1
+    print("------------------------------------------------------------------------------------------------------------------------------------")
+    print(f" Total number of received Messages for Process {process_id} is: {counter}")
+    print("------------------------------------------------------------------------------------------------------------------------------------")
+    time_other = int(random.randint(1, 9))
+    print(f" ...simulating the execution of some other local work, for {time_other} seconds...")
 
-    else:
-        ch.basic_reject(delivery_tag=method.delivery_tag, requeue=True)
+    with ChargingBar('') as bar:
+        for i in range(100):
+            time.sleep(int(time_other)/100)
+            bar.next()
+                
+    ch.basic_ack(delivery_tag=method.delivery_tag) 
+
 
 channel.basic_qos(prefetch_count=1)
 

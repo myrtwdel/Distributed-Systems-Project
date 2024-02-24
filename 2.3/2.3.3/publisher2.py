@@ -30,22 +30,15 @@ channel.queue_bind(exchange='process_exchange', queue='dead_letter_queue', routi
 
 
 message = hbtg.send_samples_to_processes()
-messages = []
 # Αποστολή του ίδιου μηνύματος 9 φορές ώστε να εξυπηρετηθεί από κάθε διεργασία το μέρος του δείγματος που έχει αναλάβει
-for pid, process in processes.items():
-    receiver_id = process.pid
-    message = f" {message} + {receiver_id}"
-    #messages.append(message)
-    channel.basic_publish(exchange='process_exchange', routing_key='process_queue', body=message, properties=pika.BasicProperties(delivery_mode=pika.DeliveryMode.Persistent))
 
-#for message in messages:
-   # channel.basic_publish(exchange='process_exchange', routing_key='process_queue', body=message, properties=pika.BasicProperties(delivery_mode=pika.DeliveryMode.Persistent))
+
+channel.basic_publish(exchange='process_exchange', routing_key='process_queue', body=message, properties=pika.BasicProperties(delivery_mode=pika.DeliveryMode.Persistent))
 
 # Εναλλακτήριο διεργασιών
 channel.exchange_declare(exchange='filtering_stream', exchange_type='topic', durable=True)
 channel.queue_bind(exchange='filtering_stream', queue='process_queue')
 channel.basic_publish(exchange='filtering_stream', body=message, routing_key='process')
-
 
 
 print("====================================================================================================================================")
@@ -59,9 +52,6 @@ print(f" \t SAMPLES: {message_body}")
 print("------------------------------------------------------------------------------------------------------------------------------------")
 print(f" New Message just published.")
 print("====================================================================================================================================")
-
-
-
 
 
 connection.close()
