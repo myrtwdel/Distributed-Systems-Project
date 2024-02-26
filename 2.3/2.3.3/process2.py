@@ -1,5 +1,4 @@
 import pika, sys, signal, random, time
-from statistics import mean
 from progress.bar import ChargingBar
 from classes import Process
 

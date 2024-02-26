@@ -30,8 +30,6 @@ channel.queue_bind(exchange='process_exchange', queue='dead_letter_queue', routi
 
 
 message = hbtg.send_samples_to_processes()
-# Αποστολή του ίδιου μηνύματος 9 φορές ώστε να εξυπηρετηθεί από κάθε διεργασία το μέρος του δείγματος που έχει αναλάβει
-
 
 channel.basic_publish(exchange='process_exchange', routing_key='process_queue', body=message, properties=pika.BasicProperties(delivery_mode=pika.DeliveryMode.Persistent))
 

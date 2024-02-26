@@ -8,6 +8,7 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
+
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 
@@ -32,16 +33,19 @@ channel.queue_declare(queue='dead_letter_queue', durable=True)
 channel.exchange_declare(exchange='process_exchange', exchange_type='direct', durable=True)
 channel.queue_bind(exchange='process_exchange', queue='dead_letter_queue', routing_key='process_queue')
 
+recipient_id = sys.argv[1]
+recipient_pr = Process.get_process_by_pid(recipient_id, processes)
+sensors = recipient_pr.get_sensor_list()
+
+indexes = [x - 1 for x in sensors]
+
 # Ανταλλακτήριο διεργασιών
 channel.exchange_declare(exchange='filtering_stream', exchange_type='topic', durable=True)
-channel.queue_bind(exchange='filtering_stream', queue='process_queue', routing_key='process')
+channel.queue_bind(exchange='filtering_stream', queue='process_queue', routing_key=recipient_id)
 
-process_id = sys.argv[1]
-process_pr = Process.get_process_by_pid(process_id, processes)
-sensors = process_pr.get_sensor_list()
 
 print("====================================================================================================================================")
-print(f" [Process {process_id}] Awaiting Samples from its Sensors. Press CTRL+C to exit...")
+print(f" [Process {recipient_id}] Awaiting Messages from its neighbors. Press CTRL+C to exit...")
 
 counter = 0
 
@@ -49,36 +53,39 @@ def callback(ch, method, properties, body):
     message = body.decode()
     message = str(message)
     message = message.replace("{", "").replace("}", "").replace("'", "")
-    message_timestamp, message_body = message.split(' = ')
-    message_body, receiver_id = message.split(' + ')
-    samples = [message_body[i] for i in sensors]
-
-    if process_id == receiver_id:
-
+    sender_id, rest = message.split(' + ')
+    recipient_ids, rest = rest.split(' * ')
+    message_timestamp, message_body = rest.split(' = ')
+    message_body = message_body.strip("[]").split(', ')
+    samples = [message_body[i] for i in indexes]
+    samples = sorted(samples, key = lambda x:float(x))
+    
+    if recipient_id in recipient_ids:
         print("====================================================================================================================================")
-        print(f" [Process {process_id} Just received a new message:]")
+        print(f" [Process {recipient_id} Just received a new message:]")
         print("------------------------------------------------------------------------------------------------------------------------------------")
+        print(f" \t SENDER PROCESS ID: {sender_id}")
         print(f" \t SENT FROM SENSORS: {sensors}")
         print(f" \t SAMPLING TIMESTAMP: {message_timestamp}")
-        print(f" \t SAMPLES: {samples}")
+        print(f" \t SAMPLES: {str(samples).replace("'","")}")
+        print(f" \t HIGHEST TEMPERATURE: {max(samples, key=lambda x:float(x))}")
+        print(f" \t LOWEST TEMPERATURE {min(samples, key=lambda x:float(x))}")
+        print(f" \t AVERAGE TEMPERATURE: {sum(float(x) for x in samples)/len(samples)}")
         global counter
         counter += 1
         print("------------------------------------------------------------------------------------------------------------------------------------")
-        print(f" Total number of received Messages for Process {process_id} is: {counter}")
+        print(f" Total number of received Messages for Process {recipient_id} is: {counter}")
         print("------------------------------------------------------------------------------------------------------------------------------------")
         time_other = int(random.randint(1, 9))
         print(f" ...simulating the execution of some other local work, for {time_other} seconds...")
-
         with ChargingBar('') as bar:
             for i in range(100):
                 time.sleep(int(time_other)/100)
                 bar.next()
-                
-        ch.basic_ack(delivery_tag=method.delivery_tag)  
+        ch.basic_ack(delivery_tag=method.delivery_tag)
 
     else:
         ch.basic_reject(delivery_tag=method.delivery_tag, requeue=True)
-
 
 channel.basic_qos(prefetch_count=1)
 
