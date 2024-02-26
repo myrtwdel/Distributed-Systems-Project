@@ -69,8 +69,8 @@ def callback(ch, method, properties, body):
     print(f" \t SENT FROM SENSORS: {sensors}")
     print(f" \t SAMPLING TIMESTAMP: {message_timestamp}")
     print(f" \t SAMPLES: {str(samples).replace("'","")}")
-    print(f" \t MAXIMUM TEMPERATURE: {max(samples, key=lambda x:float(x))}")
-    print(f" \t MINIMUM TEMPERATURE {min(samples, key=lambda x:float(x))}")
+    print(f" \t HIGHEST TEMPERATURE: {max(samples, key=lambda x:float(x))}")
+    print(f" \t LOWEST TEMPERATURE {min(samples, key=lambda x:float(x))}")
     print(f" \t AVERAGE TEMPERATURE: {sum(float(x) for x in samples)/len(samples)}")
     global counter
     counter += 1
