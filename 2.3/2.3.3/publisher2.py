@@ -42,10 +42,9 @@ channel.basic_publish(exchange='filtering_stream', body=message, routing_key='pr
 
 
 print("====================================================================================================================================")
-print(f" [Process SENDER] Publisher's Process Name = publisher.py")
+print(f" [Publisher] publisher.py")
 print("------------------------------------------------------------------------------------------------------------------------------------")
-print(f" \t PROCESS ID: SENDER")
-print(f" \t RECIPIENT PROCESS ID(s): ALL")
+print(f" [Publisher] Sent the samples to all 9 processes.")
 message_timestamp, message_body = message.split(' = ')
 print(f" \t SAMPLING TIMESTAMP: {message_timestamp}")
 print(f" \t SAMPLES: {message_body}")

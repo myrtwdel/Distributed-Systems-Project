@@ -1,10 +1,12 @@
 import pika, sys, signal, random, time
+from statistics import mean
 from progress.bar import ChargingBar
 from classes import Process
 
 def signal_handler(sig, frame):
     print(" \n Interrupted")
     sys.exit(0)
+
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -37,7 +39,10 @@ process_id = sys.argv[1]
 process_pr = Process.get_process_by_pid(process_id, processes)
 sensors = process_pr.get_sensor_list()
 
-# Εναλλακτήριο διεργασιών
+indexes = [x - 1 for x in sensors]
+
+
+# Ανταλλακτήριο διεργασιών
 channel.exchange_declare(exchange='filtering_stream', exchange_type='topic', durable=True)
 channel.queue_bind(exchange='filtering_stream', queue='process_queue', routing_key='process')
 
@@ -52,14 +57,21 @@ def callback(ch, method, properties, body):
     message = str(message)
     message = message.replace("{", "").replace("}", "").replace("'", "")
     message_timestamp, message_body = message.split(' = ')
-    samples = [message_body[i] for i in sensors]
+    message_body = message_body.strip("[]").split(', ')
+    samples = [message_body[i] for i in indexes]
+    samples = sorted(samples, key = lambda x:float(x))
+    #samples = str(samples)
+    #samples = samples.replace("'","")
 
     print("====================================================================================================================================")
     print(f" [Process {process_id} Just received a new message:]")
     print("------------------------------------------------------------------------------------------------------------------------------------")
     print(f" \t SENT FROM SENSORS: {sensors}")
     print(f" \t SAMPLING TIMESTAMP: {message_timestamp}")
-    print(f" \t SAMPLES: {samples}")
+    print(f" \t SAMPLES: {str(samples).replace("'","")}")
+    print(f" \t MAXIMUM TEMPERATURE: {max(samples, key=lambda x:float(x))}")
+    print(f" \t MINIMUM TEMPERATURE {min(samples, key=lambda x:float(x))}")
+    print(f" \t AVERAGE TEMPERATURE: {sum(float(x) for x in samples)/len(samples)}")
     global counter
     counter += 1
     print("------------------------------------------------------------------------------------------------------------------------------------")
