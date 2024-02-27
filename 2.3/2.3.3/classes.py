@@ -42,29 +42,38 @@ class Process:
     def get_process_by_pid(pid, processes):
         return processes.get(pid)
     
+    # Λίστα των κατάλληλων αισθητηρών για την κάθε διεργασία ανάλογα με τον αμέσως επόμενο έξω-γείτονα
     def get_sensor_list(self):
         sensors = list(range(int(self.pid), int(self.neighbors[0])))
         return sensors
     
+    
+    # Ανάθεση τοπικών και καθολικών τιμών για κάθε διεργασία
     def update_values(self):
 
-        self.local_min = float(self.local_min)
+        # Αρχικοποίηση
         self.local_max = float(self.local_max)
+        self.local_min = float(self.local_min)
         self.local_avg = float(self.local_avg)
-        self.global_min = float(self.global_min)
         self.global_max = float(self.global_max)
+        self.global_min = float(self.global_min)
         self.global_avg = float(self.global_avg)
 
+
+        # Καθολικό Μέγιστο
+        if self.local_max > self.global_max:
+            self.global_max = self.local_max
+
+        #Καθολικό Ελάχιστο
+        if self.local_min < self.global_min:
+            self.global_min = self.local_min
+
+        # Καθολικός Μέσος Όρος
         if self.global_avg != 0:
             self.global_avg = (self.global_avg + self.local_avg) / 2
         else:
             self.global_avg = self.local_avg
 
-        if self.local_max > self.global_max:
-            self.global_max = self.local_max
-
-        if self.local_min < self.global_min:
-            self.global_min = self.local_min
 
 
     
