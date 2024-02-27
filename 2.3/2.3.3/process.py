@@ -59,6 +59,10 @@ def callback(ch, method, properties, body):
     message_body = message_body.strip("[]").split(', ')
     samples = [message_body[i] for i in indexes]
     samples = sorted(samples, key = lambda x:float(x))
+
+    recipient_pr.local_max = max(samples, key=lambda x:float(x))
+    recipient_pr.local_min = min(samples, key=lambda x:float(x))
+    recipient_pr.local_avg = sum(float(x) for x in samples)/len(samples)
     
     if recipient_id in recipient_ids:
         print("====================================================================================================================================")
@@ -68,9 +72,16 @@ def callback(ch, method, properties, body):
         print(f" \t SENT FROM SENSORS: {sensors}")
         print(f" \t SAMPLING TIMESTAMP: {message_timestamp}")
         print(f" \t SAMPLES: {str(samples).replace("'","")}")
-        print(f" \t HIGHEST TEMPERATURE: {max(samples, key=lambda x:float(x))}")
-        print(f" \t LOWEST TEMPERATURE {min(samples, key=lambda x:float(x))}")
-        print(f" \t AVERAGE TEMPERATURE: {sum(float(x) for x in samples)/len(samples)}")
+        print(f" \t HIGHEST TEMPERATURE: {recipient_pr.local_max}")
+        print(f" \t LOWEST TEMPERATURE {recipient_pr.local_min}")
+        print(f" \t AVERAGE TEMPERATURE: {recipient_pr.local_avg}")
+        print("------------------------------------------------------------------------------------------------------------------------------------")
+        recipient_pr.update_values()
+        print(f" \t GLOBAL MAX: {recipient_pr.global_max}")
+        print(f" \t GLOBAL MIN: {recipient_pr.global_min}")
+        print(f" \t GLOBAL AVERAGE: {recipient_pr.global_avg}")
+
+
         global counter
         counter += 1
         print("------------------------------------------------------------------------------------------------------------------------------------")

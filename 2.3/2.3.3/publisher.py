@@ -26,7 +26,7 @@ processes = {
     "28": Process("28", ["01", "04"])
 }
 
-hbtg = HeartbitAndTemperatureGenerator(30)
+hbtg = HeartbitAndTemperatureGenerator(1)
 
 # Δήλωση της ουράς διεργασιών
 channel.queue_declare(queue='process_queue', durable=True)
