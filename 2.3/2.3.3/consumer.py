@@ -76,7 +76,20 @@ def callback(ch, method, properties, body):
         print(f" \t LOWEST TEMPERATURE {recipient_pr.local_min}")
         print(f" \t AVERAGE TEMPERATURE: {recipient_pr.local_avg}")
         print("------------------------------------------------------------------------------------------------------------------------------------")
+        
+        if (float(recipient_pr.local_max) > float(recipient_pr.global_max)):
+            print(" \t >Global Maximum Temperature updated...")
+        
+
+        if (float(recipient_pr.local_min) < float(recipient_pr.global_min)):
+            print(" \t >Global Minimum Temperature updated...")
+
+        
+        if (float(recipient_pr.local_max) != float(recipient_pr.global_max)):
+            print(" \t >Global Average Temperature updated... \n")
+
         recipient_pr.update_values()
+
         print(f" \t GLOBAL MAX: {recipient_pr.global_max}")
         print(f" \t GLOBAL MIN: {recipient_pr.global_min}")
         print(f" \t GLOBAL AVERAGE: {recipient_pr.global_avg}")
