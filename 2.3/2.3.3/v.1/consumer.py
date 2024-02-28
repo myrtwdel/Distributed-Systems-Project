@@ -78,15 +78,15 @@ def callback(ch, method, properties, body):
         print("------------------------------------------------------------------------------------------------------------------------------------")
         
         if (float(recipient_pr.local_max) > float(recipient_pr.global_max)):
-            print(" \t >Global Maximum Temperature updated...")
+            print(" \t > Global Maximum Temperature updated...")
         
 
         if (float(recipient_pr.local_min) < float(recipient_pr.global_min)):
-            print(" \t >Global Minimum Temperature updated...")
+            print(" \t > Global Minimum Temperature updated...")
 
         
         if (float(recipient_pr.local_max) != float(recipient_pr.global_max)):
-            print(" \t >Global Average Temperature updated... \n")
+            print(" \t > Global Average Temperature updated... \n")
 
         recipient_pr.update_values()
 

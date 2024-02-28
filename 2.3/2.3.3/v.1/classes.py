@@ -32,6 +32,7 @@ class Process:
     def __init__(self, pid, neighbors):
         self.pid = pid
         self.neighbors = neighbors
+        self.counter = 0
         self.local_min = 0
         self.local_max = 0
         self.local_avg = 0
@@ -73,7 +74,3 @@ class Process:
             self.global_avg = (self.global_avg + self.local_avg) / 2
         else:
             self.global_avg = self.local_avg
-
-
-
-    
