@@ -33,6 +33,7 @@ message_body = hbtg.send_samples_to_processes()
 
 if str(sys.argv[2]) == "p":
     process_pr.publish(message_body)
+    process_pr.consume()
 
 elif str(sys.argv[2]) == "c":
     process_pr.consume()

@@ -176,6 +176,9 @@ class Process:
 
             self.publish(rest)
 
+            print("====================================================================================================================================")
+            print(f" [Process {self.pid}] Awaiting Messages from its neighbors. Press CTRL+C to exit...")
+
         else:
             ch.basic_reject(delivery_tag=method.delivery_tag, requeue=True)
 
@@ -203,6 +206,8 @@ class Process:
         channel.basic_qos(prefetch_count=1)
         channel.basic_consume(queue='process_queue', on_message_callback=self.callback)
         channel.start_consuming()
+
+        
 
 
 
