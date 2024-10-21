@@ -3,7 +3,6 @@ from datetime import datetime
 from progress.bar import ChargingBar
 
 
-
 class HeartbitAndTemperatureGenerator:
 
     def __init__(self, sampling_interval):

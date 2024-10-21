@@ -2,6 +2,7 @@ import sys, signal
 from classes import Process
 from classes import HeartbitAndTemperatureGenerator
 
+
 def signal_handler(sig, frame):
     print(" \n Interrupted")
     sys.exit(0)
