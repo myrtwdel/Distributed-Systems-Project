@@ -2,6 +2,7 @@ import pika, sys, signal, random, time
 from progress.bar import ChargingBar
 from process import Process
 
+
 def signal_handler(sig, frame):
     print(" \n Interrupted")
     sys.exit(0)
